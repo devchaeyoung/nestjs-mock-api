@@ -2,6 +2,10 @@
 
 회원관리 및 게시글 관리를 위한 RESTful API 서버입니다. 인증(JWT), 게시글 CRUD/검색, 부서 관리, Swagger 문서를 제공합니다.
 
+## swagger view
+<img width="620" alt="image" src="https://github.com/user-attachments/assets/49d59f6a-a973-4454-884a-dd5251fb6f19" />
+
+
 ## 🚀 주요 기능
 - 사용자: 회원가입, 로그인, 토큰 갱신, 회원탈퇴 (JWT)
 - 게시글: 작성, 상세 조회, 목록/검색(페이징)
