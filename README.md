@@ -1,5 +1,7 @@
 # NestJS MongoDB API
 
+> 해당 빠른 목업 api 생성을 위해 claude.ai로 만들어진 프로젝트입니다 ( 총 작업 시간 : 5시간 소요 )
+
 회원관리 및 게시글 관리를 위한 RESTful API 서버입니다. 인증(JWT), 게시글 CRUD/검색, 부서 관리, Swagger 문서를 제공합니다.
 
 ## swagger view
