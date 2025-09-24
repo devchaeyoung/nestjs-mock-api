@@ -1,5 +1,6 @@
-import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
+import { Injectable, UnauthorizedException, Logger, ForbiddenException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../users/users.service';
 import { DepartmentsService } from '../departments/departments.service';
 import { RegisterDto } from './dto/register.dto';
@@ -13,6 +14,7 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private departmentsService: DepartmentsService,
+    private configService: ConfigService,
   ) {}
 
   async register(registerDto: RegisterDto) {
@@ -50,8 +52,10 @@ export class AuthService {
     
     this.logger.log(`사용자 로그인: ${user.email}`);
     
+    const tokens = this.issueTokens(payload);
+
     return {
-      access_token: this.jwtService.sign(payload),
+      ...tokens,
       user: {
         id: (user as any)._id,
         email: user.email,
@@ -78,8 +82,10 @@ export class AuthService {
       departmentId: user.departmentId 
     };
     
+    const tokens = this.issueTokens(payload);
+
     return {
-      access_token: this.jwtService.sign(payload),
+      ...tokens,
       user: {
         id: (user as any)._id,
         email: user.email,
@@ -88,6 +94,28 @@ export class AuthService {
         department: department ? { _id: (department as any)._id, name: (department as any).name } : null
       },
     };
+  }
+
+  issueTokens(payload: { email: string; sub: string; departmentId: number }) {
+    const accessToken = this.jwtService.sign(payload, {
+      secret: this.configService.get<string>('jwt.secret'),
+      expiresIn: this.configService.get<string>('jwt.expiresIn'),
+    });
+    const refreshToken = this.jwtService.sign({ sub: payload.sub }, {
+      secret: this.configService.get<string>('jwt.secret'),
+      expiresIn: this.configService.get<string>('jwt.refreshExpiresIn'),
+    });
+    return { access_token: accessToken, refresh_token: refreshToken };
+  }
+
+  verifyRefreshToken(refreshToken: string): { sub: string } {
+    try {
+      return this.jwtService.verify(refreshToken, {
+        secret: this.configService.get<string>('jwt.secret'),
+      }) as { sub: string };
+    } catch (e) {
+      throw new ForbiddenException('유효하지 않은 리프레시 토큰입니다.');
+    }
   }
 }
 

@@ -43,6 +43,10 @@ JWT_EXPIRES_IN=24h
   - 예) `MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/nestjs_api?retryWrites=true&w=majority&appName=<appName>`
   - 비밀번호 특수문자는 URL 인코딩 필요
   - Atlas에서 DB 사용자 생성, IP 허용 후 사용
+- JWT_SECRET 생성은 아래 명령어 터미널에 입력 후 생성된 문자 `.env`에 붙여넣기
+```bash
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+```
 
 `.env.local`가 있으면 우선 적용됩니다.
 
