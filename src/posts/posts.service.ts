@@ -14,7 +14,48 @@ export class PostsService {
     private postModel: Model<PostDocument>,
   ) {}
 
+  private buildUserDepartmentAggregationStages(): any[] {
+    return [
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'user',
+          pipeline: [
+            { $project: { name: 1, email: 1, departmentId: 1 } }
+          ]
+        }
+      },
+      { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } },
+      {
+        $lookup: {
+          from: 'departments',
+          localField: 'user.departmentId',
+          foreignField: '_id',
+          as: 'department'
+        }
+      },
+      { $unwind: { path: '$department', preserveNullAndEmptyArrays: true } },
+      {
+        $addFields: {
+          'user.department': {
+            $cond: {
+              if: '$department',
+              then: { _id: '$department._id', name: '$department.name' },
+              else: null
+            }
+          }
+        }
+      },
+      { $project: { department: 0 } },
+    ];
+  }
+
   async create(createPostDto: CreatePostDto, userId: string): Promise<Post> {
+    if (!userId || !Types.ObjectId.isValid(userId)) {
+      throw new Error('유효한 작성자 정보가 필요합니다.');
+    }
     const createdPost = new this.postModel({
       ...createPostDto,
       userId: new Types.ObjectId(userId),
@@ -47,40 +88,8 @@ export class PostsService {
     }
 
     pipeline.push(
-      {
-        $lookup: {
-          from: 'users',
-          localField: 'userId',
-          foreignField: '_id',
-          as: 'user',
-          pipeline: [
-            { $project: { name: 1, email: 1, departmentId: 1 } }
-          ]
-        }
-      },
-      { $unwind: '$user' },
-      {
-        $lookup: {
-          from: 'departments',
-          localField: 'user.departmentId',
-          foreignField: '_id',
-          as: 'department'
-        }
-      },
-      { $unwind: { path: '$department', preserveNullAndEmptyArrays: true } },
-      {
-        $addFields: {
-          'user.department': {
-            $cond: {
-              if: '$department',
-              then: { _id: '$department._id', name: '$department.name' },
-              else: null
-            }
-          }
-        }
-      },
-      { $project: { department: 0 } },
-      { $sort: { createdAt: -1 } }
+      ...this.buildUserDepartmentAggregationStages(),
+      { $sort: { createdAt: -1 } },
     );
 
     const [results] = await this.postModel.aggregate([
@@ -128,39 +137,7 @@ export class PostsService {
 
     const [post] = await this.postModel.aggregate([
       { $match: { _id: new Types.ObjectId(id), status: 'published' } },
-      {
-        $lookup: {
-          from: 'users',
-          localField: 'userId',
-          foreignField: '_id',
-          as: 'user',
-          pipeline: [
-            { $project: { name: 1, email: 1, departmentId: 1 } }
-          ]
-        }
-      },
-      { $unwind: '$user' },
-      {
-        $lookup: {
-          from: 'departments',
-          localField: 'user.departmentId',
-          foreignField: '_id',
-          as: 'department'
-        }
-      },
-      { $unwind: { path: '$department', preserveNullAndEmptyArrays: true } },
-      {
-        $addFields: {
-          'user.department': {
-            $cond: {
-              if: '$department',
-              then: { _id: '$department._id', name: '$department.name' },
-              else: null
-            }
-          }
-        }
-      },
-      { $project: { department: 0 } }
+      ...this.buildUserDepartmentAggregationStages(),
     ]);
 
     if (!post) {

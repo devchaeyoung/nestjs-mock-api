@@ -15,7 +15,6 @@ import {
   ApiBearerAuth, 
   ApiBody, 
   ApiParam, 
-  ApiQuery 
 } from '@nestjs/swagger';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
