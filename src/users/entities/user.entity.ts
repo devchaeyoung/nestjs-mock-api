@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 
 export type UserDocument = User & Document;
@@ -28,9 +28,9 @@ export class User {
   @Prop({ required: true, trim: true })
   name: string;
 
-  @ApiProperty({ description: '부서 번호', example: 1 })
-  @Prop({ type: Number, ref: 'Department', required: true, index: true })
-  departmentId: number;
+  @ApiProperty({ description: '부서 ID', example: '507f1f77bcf86cd799439011' })
+  @Prop({ type: Types.ObjectId, ref: 'Department', required: true, index: true })
+  departmentId: Types.ObjectId;
 
   @ApiProperty({ description: '생성일시', example: '2024-01-01T00:00:00.000Z' })
   createdAt: Date;

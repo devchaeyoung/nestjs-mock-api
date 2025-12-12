@@ -5,13 +5,11 @@ import { ApiProperty } from '@nestjs/swagger';
 export type DepartmentDocument = Department & Document;
 
 @Schema({ 
-  _id: false,
   collection: 'departments'
 })
 export class Department {
-  @ApiProperty({ description: '부서 ID', example: 1 })
-  @Prop({ required: true, unique: true })
-  _id: number;
+  @ApiProperty({ description: '부서 ID', example: '507f1f77bcf86cd799439011' })
+  _id: string;
 
   @ApiProperty({ description: '부서명', example: '개발팀' })
   @Prop({ required: true, trim: true })

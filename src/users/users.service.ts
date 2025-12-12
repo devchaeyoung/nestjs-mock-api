@@ -1,6 +1,6 @@
 import { Injectable, ConflictException, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
-import { Model, Connection } from 'mongoose';
+import { Model, Connection, Types } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
 import { User, UserDocument } from './entities/user.entity';
 import { RegisterDto } from '../auth/dto/register.dto';
@@ -41,6 +41,7 @@ export class UsersService {
       
       const createdUser = new this.userModel({
         ...registerDto,
+        departmentId: new Types.ObjectId(registerDto.departmentId),
         password: hashedPassword,
       });
 

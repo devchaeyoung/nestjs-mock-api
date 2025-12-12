@@ -19,7 +19,7 @@ export class AuthService {
 
   async register(registerDto: RegisterDto) {
     const user = await this.usersService.create(registerDto);
-    const department = await this.departmentsService.findById(user.departmentId);
+    const department = await this.departmentsService.findById((user.departmentId as any).toString());
     
     const { password, ...result } = (user as any).toObject ? (user as any).toObject() : user;
     this.logger.log(`새 사용자 등록: ${user.email}`);
@@ -43,11 +43,11 @@ export class AuthService {
 
     await this.usersService.updateLastLogin((user as any)._id);
 
-    const department = await this.departmentsService.findById(user.departmentId);
+    const department = await this.departmentsService.findById((user.departmentId as any).toString());
     const payload = { 
       email: user.email, 
       sub: (user as any)._id,
-      departmentId: user.departmentId 
+      departmentId: (user.departmentId as any).toString() 
     };
     
     this.logger.log(`사용자 로그인: ${user.email}`);
@@ -74,12 +74,12 @@ export class AuthService {
 
   async refreshToken(userId: string) {
     const user = await this.usersService.findById(userId);
-    const department = await this.departmentsService.findById(user.departmentId);
+    const department = await this.departmentsService.findById((user.departmentId as any).toString());
     
     const payload = { 
       email: user.email, 
       sub: (user as any)._id,
-      departmentId: user.departmentId 
+      departmentId: (user.departmentId as any).toString() 
     };
     
     const tokens = this.issueTokens(payload);

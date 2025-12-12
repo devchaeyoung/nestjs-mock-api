@@ -28,13 +28,10 @@ export class RegisterDto {
   name: string;
 
   @ApiProperty({
-    description: '부서 번호 (1: 개발팀, 2: 영업팀, 3: 마케팅팀, 4: 인사팀, 5: 재무팀)',
-    example: 1,
-    minimum: 1
+    description: '부서 ID (ObjectId)',
+    example: '507f1f77bcf86cd799439011'
   })
-  @Type(() => Number)
-  @IsNumber()
-  @Min(1)
-  departmentId: number;
+  @IsString()
+  departmentId: string;
 }
 
